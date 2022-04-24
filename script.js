@@ -5,8 +5,13 @@ const title = document.querySelector("#title");
 const author = document.querySelector("#author");
 const pages = document.querySelector("#pages");
 const read = document.querySelector("#read");
-let library = [];
-let index = 0;
+let library = JSON.parse(window.localStorage.getItem("library") || "[]");
+
+// get index from latest book in library OR 0
+let index =
+  library[library.length - 1] !== undefined
+    ? library[library.length - 1].index + 1
+    : 0;
 
 class Book {
   constructor(title, author, pages, read, index) {
@@ -21,6 +26,7 @@ class Book {
 function addBook(title, author, pages, read, index) {
   const book = new Book(title, author, pages, read, index);
   library.push(book);
+  window.localStorage.setItem("library", JSON.stringify(library));
 }
 
 addBookButton.addEventListener("click", (e) => {
@@ -45,6 +51,7 @@ const content = document.querySelector(".content");
 
 function displayLibrary() {
   content.innerHTML = "";
+  library = JSON.parse(window.localStorage.getItem("library"));
   library.forEach((book) => {
     const clone = card.cloneNode(true);
     clone.style.display = "flex";
@@ -61,7 +68,7 @@ function displayLibrary() {
     read.addEventListener("click", () => {
       book.read = read.checked;
     });
-    //Dovrshi remove buttonov utre
+
     const button = clone.querySelector("button");
     button.addEventListener("click", removeBook);
 
@@ -75,4 +82,7 @@ function removeBook(e) {
       book.index !== parseInt(e.target.parentElement.getAttribute("data-index"))
   );
   e.target.parentElement.remove();
+  window.localStorage.setItem("library", JSON.stringify(library));
 }
+
+if (library.length > 0) displayLibrary();
